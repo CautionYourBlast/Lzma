@@ -1,0 +1,17 @@
+os:
+    - linux
+    - osx
+
+language: generic
+
+osx_image: xcode8.3
+
+branches:
+  only:
+    - master
+    - dev
+
+script:
+    - swift build
+    - swift build --configuration=release
+    - swift test
