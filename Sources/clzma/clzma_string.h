@@ -23,7 +23,7 @@
 
 #ifndef __CLZMA_STRING_H__
 #define __CLZMA_STRING_H__ 1
-
+ 
 #include "CPP/Common/MyString.h"
 
 namespace CLzma {
