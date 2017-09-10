@@ -21,25 +21,35 @@
  */
 
 
-import Foundation
-import CLzma
+#include "libclzma.h"
+#include "clzma_private.h"
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
+void * clzma_malloc(const size_t size) {
+    if (size > 0) {
+        void * mem = malloc(size);
+        assert(mem);
+        return mem;
+    }
+    return NULL;
+}
+
+void * clzma_malloc_zero(const size_t size) {
+    void * mem = clzma_malloc(size);
+    if (mem) {
+        memset(mem, 0, size);
+    }
+    return mem;
+}
+
+void clzma_free(void * mem) {
+    if (mem) {
+        free(mem);
     }
 }
 
+void clzma_free_clean(void ** mem) {
+    if (mem) {
+        free(*mem);
+        *mem = NULL;
+    }
+}

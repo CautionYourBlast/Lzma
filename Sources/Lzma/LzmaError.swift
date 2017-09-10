@@ -22,7 +22,7 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 public struct LzmaError: Error {
     
@@ -36,23 +36,23 @@ public struct LzmaError: Error {
     
     public let line: Int32
     
-    internal init(error: lzma_wrp_error) {
-        if let unsafeDescription = lzma_wrp_get_description(error), let description = String(cString: unsafeDescription, encoding: .utf8) {
+    internal init(error: clzma_error_t) {
+        if let unsafeDescription = clzma_error_get_description(error), let description = String(cString: unsafeDescription, encoding: .utf8) {
             self.description = description
         } else {
             self.description = ""
         }
-        if let unsafeReason = lzma_wrp_get_possible_reason(error), let reason = String(cString: unsafeReason, encoding: .utf8) {
+        if let unsafeReason = clzma_error_get_possible_reason(error), let reason = String(cString: unsafeReason, encoding: .utf8) {
             self.possibleReason = reason
         } else {
             self.possibleReason = ""
         }
-        if let unsafeFile = lzma_wrp_get_file(error), let file = String(cString: unsafeFile, encoding: .utf8) {
+        if let unsafeFile = clzma_error_get_file(error), let file = String(cString: unsafeFile, encoding: .utf8) {
             self.file = file
         } else {
             self.file = ""
         }
-        self.code = lzma_wrp_get_code(error)
-        self.line = lzma_wrp_get_line(error)
+        self.code = clzma_error_get_code(error)
+        self.line = clzma_error_get_line(error)
     }
 }

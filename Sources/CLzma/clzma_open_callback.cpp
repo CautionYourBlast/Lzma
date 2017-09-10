@@ -21,25 +21,48 @@
  */
 
 
-import Foundation
-import CLzma
+#include "clzma_open_callback.h"
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+#include "CPP/Common/Defs.h"
+
+namespace CLzma {
+
+	STDMETHODIMP OpenCallback::SetTotal(const UInt64 * files, const UInt64 * bytes) {
+		return S_OK;
+	}
+
+	STDMETHODIMP OpenCallback::SetCompleted(const UInt64 * files, const UInt64 * bytes) {
+		return S_OK;
+	}
+
+	STDMETHODIMP OpenCallback::CryptoGetTextPassword(BSTR *password) {
+		if (_coder) {
+//			UString w(_coder->onGetVoidCallback1());
+//			if (w.Len() > 0) return StringToBstr(w, password);
+		}
+		return S_OK;
+	}
+
+	STDMETHODIMP OpenCallback::CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password) {
+		if (passwordIsDefined) *passwordIsDefined = BoolToInt(false);
+//		if (_coder) {
+//			UString w(_coder->onGetVoidCallback1());
+//			if (w.Len() > 0) {
+//				if (passwordIsDefined) *passwordIsDefined = BoolToInt(true);
+//				return StringToBstr(w, password);
+//			}
+//		}
+		return S_OK;
+	}
+
+	OpenCallback::OpenCallback() : CLzma::LastErrorHolder(),
+		_coder(NULL) {
+
+	}
+	
+	OpenCallback::~OpenCallback() {
+
+	}
+	
 }
 

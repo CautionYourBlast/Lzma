@@ -21,25 +21,46 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_OPEN_CALLBACK_H__
+#define __CLZMA_OPEN_CALLBACK_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+#include "clzma_base_coder.h"
+
+#include "CPP/7zip/Archive/IArchive.h"
+#include "CPP/7zip/IPassword.h"
+#include "CPP/Common/MyCom.h"
+#include "CPP/Common/MyString.h"
+
+namespace CLzma {
+	
+	class OpenCallback :
+		public IArchiveOpenCallback,
+		public ICryptoGetTextPassword,
+		public ICryptoGetTextPassword2,
+		public CMyUnknownImp,
+		public CLzma::LastErrorHolder {
+	private:
+		CLzma::BaseCoder * _coder;
+
+	public:
+		MY_UNKNOWN_IMP3(IArchiveOpenCallback, ICryptoGetTextPassword, ICryptoGetTextPassword2)
+
+		// IArchiveOpenCallback
+		STDMETHOD(SetTotal)(const UInt64 *files, const UInt64 *bytes);
+		STDMETHOD(SetCompleted)(const UInt64 *files, const UInt64 *bytes);
+
+		// ICryptoGetTextPassword
+		STDMETHOD(CryptoGetTextPassword)(BSTR *password);
+
+		// ICryptoGetTextPassword2
+		STDMETHOD(CryptoGetTextPassword2)(Int32 *passwordIsDefined, BSTR *password);
+
+		void setCoder(CLzma::BaseCoder * coder) { _coder = coder; }
+
+		OpenCallback();
+		virtual ~OpenCallback();
+	};
+	
 }
 
+#endif 

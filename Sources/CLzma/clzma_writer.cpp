@@ -21,25 +21,30 @@
  */
 
 
-import Foundation
-import CLzma
+#include "clzma_writer.h"
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+clzma_writer_t clzma_writer_create(void) {
+    clzma_writer_t writer = (clzma_writer_t)clzma_malloc_zero(sizeof(struct clzma_writer_struct));
+    CLzma::FileEncoder * encoder = new CLzma::FileEncoder();
+    CLZMA_ASSERT(decoder)
+    encoder->setWriter(writer);
+    writer->encoder = encoder;
+    return writer;
+}
+
+void clzma_writer_set_progress_callback(clzma_writer_t writer, void (*cb)(clzma_writer_t writer, const double progress)) {
+    CLZMA_ASSERT(writer)
+    writer->encoder->setProgressCallback(cb);
+}
+
+void clzma_writer_set_password(clzma_writer_t writer, const clzma_wchar_t * password) {
+    CLZMA_ASSERT(writer)
+    writer->encoder->setPassword(password);
+}
+
+void clzma_writer_delete(clzma_writer_t writer) {
+    CLZMA_ASSERT(writer)
+    delete writer->encoder;
+    clzma_free(writer);
 }
 

@@ -22,7 +22,7 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 public class LzmaMutableItem {
     

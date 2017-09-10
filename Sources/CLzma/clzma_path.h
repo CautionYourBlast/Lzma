@@ -21,25 +21,27 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_PATH_H__
+#define __CLZMA_PATH_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
+#include "clzma_string.h"
+
+namespace CLzma {
+    class Path : public CLzma::String {
     
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+    private:
+        static bool makeDir(const char * path);
+        static bool exists(const char * path, bool * is_dir);
+        static bool existsDir(const char * path);
+        static bool existsFile(const char * path);
+    public:
+        void deleteLastPathComponent();
+        const char * lastPathComponent() const;
+        void appendPath(const char * path);
+        bool createDir(bool with_intermediate_directories = true) const;
+        bool exists(bool * is_dir = NULL) const;
+        Path(const char * s);
+    };
 }
 
+#endif

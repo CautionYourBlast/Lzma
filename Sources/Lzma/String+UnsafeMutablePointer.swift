@@ -22,21 +22,21 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 extension String {
     
-    internal var wString: UnsafeMutablePointer<lzma_wrp_wchar>? {
+    internal var wString: UnsafeMutablePointer<clzma_wchar_t>? {
         let scalars = self.unicodeScalars
         let count = scalars.count
         if count > 0 {
-            let chars = UnsafeMutablePointer<lzma_wrp_wchar>.allocate(capacity: count + 1)
+            let chars = UnsafeMutablePointer<clzma_wchar_t>.allocate(capacity: count + 1)
             var index = 0;
             for scalar in scalars {
-                chars[index] = lzma_wrp_wchar(scalar.value)
+                chars[index] = clzma_wchar_t(scalar.value)
                 index += 1
             }
-            chars[index] = lzma_wrp_wchar(0)
+            chars[index] = clzma_wchar_t(0)
             return chars
         }
         return nil

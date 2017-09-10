@@ -1,4 +1,0 @@
-module lzma_wrp {
-   header "../lzma_wrp.h"
-   export * 
-}

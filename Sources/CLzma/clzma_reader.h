@@ -21,25 +21,16 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_READER_H__
+#define __CLZMA_READER_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
-}
+#include "clzma_private.h"
+#include "clzma_file_decoder.h"
 
+struct clzma_reader_struct {
+    CLzma::FileDecoder * decoder;
+    void * user_object;
+    int32_t type;
+};
+
+#endif

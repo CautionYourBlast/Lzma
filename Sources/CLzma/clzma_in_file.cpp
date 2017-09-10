@@ -21,25 +21,54 @@
  */
 
 
-import Foundation
-import CLzma
+#include "clzma_in_file.h"
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
+namespace CLzma {
+
+	STDMETHODIMP InFile::Read(void *data, UInt32 size, UInt32 *processedSize) {
+		if (processedSize) *processedSize = 0;
+		if (_f && size > 0) {
+			const size_t r = fread(data, 1, size, _f);
+			if (processedSize) *processedSize = (UInt32)r;
+		}
+		return S_OK;
+	}
+
+	STDMETHODIMP InFile::Seek(Int64 offset, uint32_t seekOrigin, UInt64 *newPosition) {
+		if (newPosition) *newPosition = 0;
+		if (_f) {
+			if (fseeko(_f, offset, seekOrigin) == 0) {
+				if (newPosition) *newPosition = ftello(_f);
+				return S_OK;
+			}
+		}
+		return S_FALSE;
+	}
+
+	bool InFile::open(const char * p) {
+        if (p) {
+            _f = fopen(p, "rb");
         }
-        return str
-    }
+		return (_f != NULL);
+	}
+
+	void InFile::close() {
+		if (_f) {
+			fclose(_f);
+			_f = NULL;
+		}
+	}
+
+	InFile::InFile() : _f(NULL) {
+
+	}
+	
+	InFile::~InFile() {
+        if (_f) {
+            fclose(_f);
+            _f = NULL;
+        }
+	}
+	
 }
 

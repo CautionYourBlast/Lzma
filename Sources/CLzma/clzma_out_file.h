@@ -21,25 +21,38 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_OUT_FILE_H__
+#define __CLZMA_OUT_FILE_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+#include "clzma_private.h"
+#include "clzma_common.h"
+
+#include "CPP/Common/MyCom.h"
+#include "CPP/Common/MyString.h"
+#include "CPP/7zip/Common/FileStreams.h"
+
+#include "C/7zCrc.h"
+
+namespace CLzma {
+
+	class OutFile : public IOutStream, public CMyUnknownImp {
+	private:
+		FILE * _f;
+
+	public:
+		MY_UNKNOWN_IMP1(IOutStream)
+
+		STDMETHOD(Write)(const void *data, UInt32 size, UInt32 *processedSize);
+		STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition);
+		STDMETHOD(SetSize)(UInt64 newSize);
+
+		bool open(const char * path);
+		void close();
+
+		OutFile();
+		virtual ~OutFile();
+	};
+
 }
 
+#endif 

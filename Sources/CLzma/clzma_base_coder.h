@@ -21,25 +21,37 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_BASE_CODER_H__
+#define __CLZMA_BASE_CODER_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+#include "clzma_private.h"
+#include "clzma_common.h"
+#include "clzma_error.h"
+#include "clzma_path.h"
+
+#include "CPP/Common/MyGuidDef.h"
+
+namespace CLzma {
+
+	class BaseCoder : public CLzma::LastErrorHolder {
+	protected:
+        UString _password;
+        
+		void createObject(const int type, const GUID * iid, void ** outObject);
+	public:
+        void setPassword(const clzma_wchar_t * password);
+        virtual void onProgress(const double progress) = 0;
+        
+		// Required
+		// find codec, create encode/decode object and check error.
+		virtual bool prepare(const int type) = 0;
+
+		virtual bool openFile(const char * path) = 0;
+
+		BaseCoder();
+		virtual ~BaseCoder();
+	};
+
 }
 
+#endif

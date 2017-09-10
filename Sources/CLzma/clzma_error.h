@@ -21,25 +21,41 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_ERROR_H__
+#define __CLZMA_ERROR_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+#include "clzma_private.h"
+
+#include "CPP/Common/StringConvert.h"
+
+namespace CLzma {
+	
+	class Error {
+	public:
+		AString description;
+		AString possibleReason;
+		AString file;
+		int64_t code;
+		int32_t line;
+
+		Error();
+		virtual ~Error() { }
+	};
+
+
+	class LastErrorHolder {
+	private:
+		CLzma::Error * _lastError;
+	public:
+		void setLastError(CLzma::LastErrorHolder * holder);
+		void setLastError(int64_t code, int line, const char * file, const char * format, ...);
+		void setLastErrorReason(const char * format, ...);
+		CLzma::Error * lastError() const { return _lastError; }
+		void clearLastError();
+		LastErrorHolder();
+		virtual ~LastErrorHolder();
+	};
 }
 
+
+#endif 

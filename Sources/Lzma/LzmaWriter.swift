@@ -22,8 +22,8 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 public final class LzmaWriter: LzmaObject {
-    private let writer: lzma_wrp_writer = lzma_wrp_writer_create()
+    private let writer: clzma_writer_t = clzma_writer_create()
 }

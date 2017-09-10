@@ -22,7 +22,7 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 public protocol LzmaReaderDelegate: class {
     func onLzmaReader(reader: LzmaReader, progress: Double) -> Void
@@ -32,10 +32,10 @@ public final class LzmaReader: LzmaObject, Sequence {
     
     public private(set) var type: LzmaFileType {
         get {
-            return LzmaFileType(rawValue: lzma_wrp_reader_get_type(reader))!
+            return LzmaFileType(rawValue: clzma_reader_get_type(reader))!
         }
         set {
-            lzma_wrp_reader_set_type(reader, newValue.rawValue)
+            clzma_reader_set_type(reader, newValue.rawValue)
         }
     }
     
@@ -44,11 +44,11 @@ public final class LzmaReader: LzmaObject, Sequence {
     public let url: URL
     
     public var count: UInt32 {
-        return lzma_wrp_reader_get_items_count(reader)
+        return clzma_reader_get_items_count(reader)
     }
     
     public var error: LzmaError? {
-        guard let error = lzma_wrp_reader_get_last_error(reader) else {
+        guard let error = clzma_reader_get_last_error(reader) else {
             return nil
         }
         return LzmaError(error: error);
@@ -63,31 +63,31 @@ public final class LzmaReader: LzmaObject, Sequence {
         set {
             if let passwd = newValue, let chars = passwd.wString {
                 _password = newValue
-                lzma_wrp_reader_set_password(reader, chars)
+                clzma_reader_set_password(reader, chars)
                 chars.deinitialize()
             } else {
                 _password = nil
-                lzma_wrp_reader_set_password(reader, nil)
+                clzma_reader_set_password(reader, nil)
             }
         }
     }
     
-    private let reader: lzma_wrp_reader = lzma_wrp_reader_create()
+    private let reader: clzma_reader_t = clzma_reader_create()
     
     private func setupReader() {
-        let unmanagedSelf = lzma_wrp_handle(Unmanaged.passUnretained(self).toOpaque())
-        lzma_wrp_reader_set_user_object(reader, unmanagedSelf)
-        
-        lzma_wrp_reader_set_progress_callback(reader) { unsafeReader, progress in
-            guard let reader = unsafeReader, let userObject = lzma_wrp_reader_get_user_object(reader) else {
-                return
-            }
-            
-            let lzmaReader = Unmanaged<LzmaReader>.fromOpaque(userObject).takeUnretainedValue()
-            if let delegate = lzmaReader.delegate {
-                delegate.onLzmaReader(reader: lzmaReader, progress: progress)
-            }
-        }
+//        let unmanagedSelf = clzma_wrp_handle(Unmanaged.passUnretained(self).toOpaque())
+//        lzma_wrp_reader_set_user_object(reader, unmanagedSelf)
+//        
+//        lzma_wrp_reader_set_progress_callback(reader) { unsafeReader, progress in
+//            guard let reader = unsafeReader, let userObject = lzma_wrp_reader_get_user_object(reader) else {
+//                return
+//            }
+//            
+//            let lzmaReader = Unmanaged<LzmaReader>.fromOpaque(userObject).takeUnretainedValue()
+//            if let delegate = lzmaReader.delegate {
+//                delegate.onLzmaReader(reader: lzmaReader, progress: progress)
+//            }
+//        }
     }
     
     public init(url: URL) {
@@ -105,7 +105,7 @@ public final class LzmaReader: LzmaObject, Sequence {
     }
     
     public func open() -> Bool {
-        guard let path = url.path.cString(using: .utf8), lzma_wrp_reader_open_file_path(reader, path) != 0 else {
+        guard let path = url.path.cString(using: .utf8), clzma_reader_open_file_path(reader, path) != 0 else {
             return false
         }
         return true
@@ -126,40 +126,40 @@ public final class LzmaReader: LzmaObject, Sequence {
             indices[index] = item.index
             index += 1
         }
-        let result = lzma_wrp_reader_process_item_indices(reader, indices, UInt32(count), cPath, usingFullPaths ? 1 : 0)
+        let result = clzma_reader_process_item_indices(reader, indices, UInt32(count), cPath, usingFullPaths ? 1 : 0)
         indices.deinitialize()
         return result != 0
     }
     
     deinit {
-        lzma_wrp_reader_set_user_object(reader, nil)
-        lzma_wrp_reader_delete(reader)
+        clzma_reader_set_user_object(reader, nil)
+        clzma_reader_delete(reader)
     }
     
     //MARK: Sequence
     public struct Iterator: IteratorProtocol {
         public typealias Element = LzmaItem
         
-        private let reader: lzma_wrp_reader
+        private let reader: clzma_reader_t
         private var index = UInt32(0)
         private let count: UInt32
         
         public mutating func next() -> LzmaItem? {
             if index < count {
-                guard let nativeItem = lzma_wrp_reader_get_item_at_index(reader, index) else {
+                guard let nativeItem = clzma_reader_get_item_at_index(reader, index) else {
                     return nil
                 }
                 let item = LzmaItem(item: nativeItem)
                 index += 1
-                lzma_wrp_item_delete(nativeItem)
+                clzma_item_delete(nativeItem)
                 return item
             }
             return nil
         }
         
-        fileprivate init(reader: lzma_wrp_reader) {
+        fileprivate init(reader: clzma_reader_t) {
             self.reader = reader
-            self.count = lzma_wrp_reader_get_items_count(reader)
+            self.count = clzma_reader_get_items_count(reader)
         }
     }
     
@@ -169,11 +169,11 @@ public final class LzmaReader: LzmaObject, Sequence {
     
     public subscript(index: UInt32) -> LzmaItem? {
         if index < count {
-            guard let nativeItem = lzma_wrp_reader_get_item_at_index(reader, index) else {
+            guard let nativeItem = clzma_reader_get_item_at_index(reader, index) else {
                 return nil
             }
             let item = LzmaItem(item: nativeItem)
-            lzma_wrp_item_delete(nativeItem)
+            clzma_item_delete(nativeItem)
             return item
         }
         return nil

@@ -21,25 +21,32 @@
  */
 
 
-import Foundation
-import CLzma
+#include "clzma_extern.h"
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
-    
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
-}
+
+/**
+ @brief 12 = 4  Kb min
+ @brief 13 = 8  Kb
+ @brief 14 = 16 Kb
+ @brief 15 = 32 Kb
+ @brief 16 = 64 Kb
+ @brief 17 = 128 Kb
+ @brief 18 = 256 Kb
+ @brief 19 = 512 Kb
+ @brief 20 = 1 Mb
+ @brief 21 = 2 Mb
+ @brief 22 = 4 Mb
+ @brief 31 = 1 Gb
+ */
+
+unsigned int lzma_wrp_stream_read_size = ((unsigned int)1 << 16);
+
+
+unsigned int lzma_wrp_stream_write_size = ((unsigned int)1 << 16);
+
+
+unsigned int lzma_wrp_decoder_read_size = ((unsigned int)1 << 16);
+
+
+unsigned int lzma_wrp_decoder_write_size = ((unsigned int)1 << 18);
 

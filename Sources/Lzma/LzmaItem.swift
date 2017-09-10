@@ -22,7 +22,7 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 public struct LzmaItem {
     
@@ -46,23 +46,23 @@ public struct LzmaItem {
     
     internal let index: UInt32
     
-    internal init(item: lzma_wrp_item) {
-        if let name = lzma_wrp_item_get_name(item) {
+    internal init(item: clzma_item_t) {
+        if let name = clzma_item_get_name(item) {
             self.name = name.string
         } else {
             self.name = ""
         }
-        self.size = lzma_wrp_item_get_size(item)
-        self.packedSize = lzma_wrp_item_get_packed_size(item)
-        self.crc32 = lzma_wrp_item_get_crc32(item)
-        var time = TimeInterval(lzma_wrp_item_get_creation_time(item))
+        self.size = clzma_item_get_size(item)
+        self.packedSize = clzma_item_get_packed_size(item)
+        self.crc32 = clzma_item_get_crc32(item)
+        var time = TimeInterval(clzma_item_get_creation_time(item))
         self.creationDate = time > 0 ? Date(timeIntervalSince1970: time) : nil
-        time = TimeInterval(lzma_wrp_item_get_access_time(item))
+        time = TimeInterval(clzma_item_get_access_time(item))
         self.accessDate = time > 0 ? Date(timeIntervalSince1970: time) : nil
-        time = TimeInterval(lzma_wrp_item_get_modification_time(item))
+        time = TimeInterval(clzma_item_get_modification_time(item))
         self.modificationDate = time > 0 ? Date(timeIntervalSince1970: time) : nil
-        self.index = lzma_wrp_item_get_index(item)
-        self.isEncrypted = lzma_wrp_item_is_encrypted(item) != 0 ? true : false
-        self.isDirectory = lzma_wrp_item_is_dir(item) != 0 ? true : false
+        self.index = clzma_item_get_index(item)
+        self.isEncrypted = clzma_item_is_encrypted(item) != 0 ? true : false
+        self.isDirectory = clzma_item_is_dir(item) != 0 ? true : false
     }
 }

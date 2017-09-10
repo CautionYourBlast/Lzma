@@ -21,25 +21,26 @@
  */
 
 
-import Foundation
-import CLzma
+#ifndef __CLZMA_STRING_H__
+#define __CLZMA_STRING_H__ 1
 
-extension UnsafePointer where Pointee == clzma_wchar_t {
+#include "CPP/Common/MyString.h"
+
+namespace CLzma {
     
-    internal var string: String {
-        var str = String()
-        var i = 0
-        var converting = true
-        while converting {
-            let value = Int(self[i])
-            if value > 0, let scalar = UnicodeScalar(value) {
-                str.append(Character(scalar))
-                i += 1
-            } else {
-                converting = false
-            }
-        }
-        return str
-    }
+    class String : public AString {
+    private:
+        void setFromWChars(const wchar_t * wcs, const size_t len);
+    public:
+        UString ustring() const;
+        String();
+        String(const AString & s);
+        String(const UString & s);
+        String(const char * s);
+        String(const wchar_t * s);
+    };
+    
 }
 
+
+#endif

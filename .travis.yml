@@ -12,6 +12,6 @@ branches:
     - dev
 
 script:
-    - swift build
-    - swift build --configuration=release
-    - swift test
+    - swift build -Xlinker -liconv
+    - swift build -Xlinker -liconv --configuration=release
+    - swift test -Xlinker -liconv

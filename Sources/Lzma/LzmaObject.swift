@@ -22,7 +22,7 @@
 
 
 import Foundation
-import lzma_wrp
+import CLzma
 
 public class LzmaObject {
     
@@ -36,7 +36,7 @@ public class LzmaObject {
     private static var isRequireInitializedCallbacks = true
     
     private static func initializeCallbacks() {
-        lzma_wrp_common_set_wchars_to_chars_callback { src, srcLen, dst in
+        clzma_common_set_wchars_to_chars_callback { src, srcLen, dst in
             guard let cString = src?.string.cString(using: .utf8), let destination = dst, srcLen > 0 else {
                 return
             }
