@@ -24,6 +24,8 @@
 #include "clzma_error.h"
 #include "clzma_private.h"
 
+#include <stdarg.h>
+
 namespace CLzma {
 	
 	Error::Error() : code(-1), line(-1) {
