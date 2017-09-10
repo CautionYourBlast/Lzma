@@ -30,31 +30,31 @@
 #include "CPP/7zip/IPassword.h"
 
 namespace CLzma {
-
-	void BaseCoder::createObject(const int type, const GUID * iid, void ** outObject) {
-		this->clearLastError();
-		if (type) {
-			const GUID * clsid = NULL;
+    
+    void BaseCoder::createObject(const int type, const GUID * iid, void ** outObject) {
+        this->clearLastError();
+        if (type) {
+            const GUID * clsid = NULL;
             const GUID clsid7z = CLzma::CLSIDFormat7z();
-			switch (type) {
-				case CLZMA_FILE_TYPE_7Z: clsid = &clsid7z; break;
-				default:
-					this->setLastError(-1, __LINE__, __FILE__, "Can't find codec for unsupported file type: %i", (int)type);
-					this->setLastErrorReason("Not one of the: ['7z']");
-					return;
-					break;
-			}
-
-			if (CreateObject(clsid, iid, outObject) != S_OK) {
-				this->setLastError(-1, __LINE__, __FILE__, "Can't create archive object file type: %i", (int)type);
-				this->setLastErrorReason("- Unsupported archive GUID.\n"
-										 "- Codec was not included.");
-			}
-		} else {
-			this->setLastError(-1, __LINE__, __FILE__, "Type of the archive is undefined, create reader with manual type");
-		}
-	}
-
+            switch (type) {
+                case CLZMA_FILE_TYPE_7Z: clsid = &clsid7z; break;
+                default:
+                    this->setLastError(-1, __LINE__, __FILE__, "Can't find codec for unsupported file type: %i", (int)type);
+                    this->setLastErrorReason("Not one of the: ['7z']");
+                    return;
+                    break;
+            }
+            
+            if (CreateObject(clsid, iid, outObject) != S_OK) {
+                this->setLastError(-1, __LINE__, __FILE__, "Can't create archive object file type: %i", (int)type);
+                this->setLastErrorReason("- Unsupported archive GUID.\n"
+                                         "- Codec was not included.");
+            }
+        } else {
+            this->setLastError(-1, __LINE__, __FILE__, "Type of the archive is undefined, create reader with manual type");
+        }
+    }
+    
     void BaseCoder::setPassword(const clzma_wchar_t * password) {
         _password.Empty();
         if (password) {
@@ -64,10 +64,10 @@ namespace CLzma {
     
     BaseCoder::BaseCoder() : CLzma::LastErrorHolder() {
         CLzma::initialize();
-	}
-
-	BaseCoder::~BaseCoder() {
+    }
+    
+    BaseCoder::~BaseCoder() {
         
-	}
-
+    }
+    
 }

@@ -27,31 +27,32 @@
 #include "clzma_private.h"
 #include "clzma_common.h"
 #include "clzma_error.h"
+#include "clzma_string.h"
 #include "clzma_path.h"
 
 #include "CPP/Common/MyGuidDef.h"
 
 namespace CLzma {
-
-	class BaseCoder : public CLzma::LastErrorHolder {
-	protected:
+    
+    class BaseCoder : public CLzma::LastErrorHolder {
+    protected:
         UString _password;
         
-		void createObject(const int type, const GUID * iid, void ** outObject);
-	public:
+        void createObject(const int type, const GUID * iid, void ** outObject);
+    public:
         void setPassword(const clzma_wchar_t * password);
         virtual void onProgress(const double progress) = 0;
         
-		// Required
-		// find codec, create encode/decode object and check error.
-		virtual bool prepare(const int type) = 0;
-
-		virtual bool openFile(const char * path) = 0;
-
-		BaseCoder();
-		virtual ~BaseCoder();
-	};
-
+        // Required
+        // find codec, create encode/decode object and check error.
+        virtual bool prepare(const int type) = 0;
+        
+        virtual bool openFile(const char * path) = 0;
+        
+        BaseCoder();
+        virtual ~BaseCoder();
+    };
+    
 }
 
 #endif
