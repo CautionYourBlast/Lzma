@@ -21,7 +21,7 @@
  */
 
 
-#import "clzma_update_callback.h"
+#include "clzma_update_callback.h"
 
 #include "CPP/Common/Defs.h"
 #include "CPP/Windows/PropVariant.h"
