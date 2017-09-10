@@ -14,7 +14,7 @@ branches:
 
 script:
     - sudo apt-get install python-pip
-    - sudo pip install python-swiftclient
+    - sudo apt-get install python-swiftclient
     - swift build -Xlinker -liconv
     - swift build -Xlinker -liconv --configuration=release
     - swift test -Xlinker -liconv
