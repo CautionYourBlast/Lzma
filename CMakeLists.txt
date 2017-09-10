@@ -84,7 +84,6 @@ endif(MINGW)
 add_definitions(-DCMAKE_BUILD)
 
 check_include_file("pthread.h" CLZMA_HAVE_PTHREAD_H)
-#check_include_file("iconv.h" CLZMA_HAVE_ICONV_H)
 
 IF (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)
   # Already in cache, be silent
@@ -102,6 +101,7 @@ ENDIF(ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)
 set(CMAKE_REQUIRED_INCLUDES ${ICONV_INCLUDE_DIR})
 set(CMAKE_REQUIRED_LIBRARIES ${ICONV_LIBRARIES})
 IF(ICONV_FOUND)
+  check_include_file("iconv.h" CLZMA_HAVE_ICONV_H)
   check_cxx_source_compiles("
   #include <iconv.h>
   int main(){
