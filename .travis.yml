@@ -1,5 +1,4 @@
 os:
-    - linux
     - osx
 
 language: generic
@@ -13,8 +12,17 @@ branches:
     - dev
 
 script:
-    - sudo apt-get install python-pip
-    - sudo apt-get install python-swiftclient
+    - mkdir build
+    - cd build
+    - cmake ..
+    - make
+    - cd ..
+    - rm -rf build
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_BUILD_TYPE=Release ..
+    - make
+    - cd ..
     - swift build -Xlinker -liconv
     - swift build -Xlinker -liconv --configuration=release
     - swift test -Xlinker -liconv
