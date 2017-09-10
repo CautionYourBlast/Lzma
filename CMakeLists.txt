@@ -23,10 +23,10 @@
 cmake_minimum_required(VERSION 2.8)
 
 
-project(cliblzma)
+project(libclzma)
 
 
-set(PACKAGE "cliblzma")
+set(PACKAGE "libclzma")
 set(CPACK_PACKAGE_NAME "${PACKAGE}")
 set(CPACK_PACKAGE_VERSION_MAJOR "0")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
