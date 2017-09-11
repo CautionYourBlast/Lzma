@@ -22,45 +22,25 @@
 
 
 #include "clzma_string.h"
-
+#include "clzma_common.h"
 #include <wchar.h>
-
-#include <iconv.h>
-
 
 namespace CLzma {
     
     void String::setFromWChars(const wchar_t * wcs, const size_t len) {
-        const size_t maxOutBytes = (len + 1) * 6;
+        const size_t maxOutBytes = (len + 1) * sizeof(wchar_t);
         char * out = GetBuf((unsigned int)maxOutBytes);
-        size_t outBytes = maxOutBytes;
-        char * in = (char *)wcs;
-        size_t inBytes = (len + 1) * sizeof(wchar_t);
-        iconv_t cd = iconv_open("UTF-8", "WCHAR_T");
-        if (((iconv_t)-1) != cd) {
-            if (((size_t)-1) != iconv(cd, &in, &inBytes, &out, &outBytes)) {
-                ReleaseBuf_SetEnd((unsigned int)(maxOutBytes - outBytes - 1));
-            }
-        }
-        iconv_close(cd);
+        const int l = CLzma::wideToChars(wcs, len, out);
+        ReleaseBuf_SetEnd(l);
     }
     
     UString String::ustring() const {
         UString s;
         const size_t len = Len();
         if (len > 0) {
-            const size_t maxOutBytes = (len + 1) * sizeof(wchar_t);
-            size_t outBytes = maxOutBytes;
-            char * in = (char *)Ptr();
-            char * out = (char *)s.GetBuf((unsigned int)(len + 1));
-            size_t inBytes = len + 1;
-            iconv_t cd = iconv_open("WCHAR_T", "UTF-8");
-            if (((iconv_t)-1) != cd) {
-                if (((size_t)-1) != iconv(cd, &in, &inBytes, &out, &outBytes)) {
-                    s.ReleaseBuf_SetEnd((unsigned int)len);
-                }
-            }
-            iconv_close(cd);
+            wchar_t * out = s.GetBuf((unsigned int)(len + 1));
+            const int l = CLzma::charsToWide(Ptr(), len, out);
+            s.ReleaseBuf_SetEnd(l);
         }
         return s;
     }

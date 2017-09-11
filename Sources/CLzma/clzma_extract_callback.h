@@ -25,6 +25,7 @@
 #define __CLZMA_EXTRACT_CALLBACK_H__ 1
 
 #include "clzma_base_coder.h"
+#include "clzma_base_extract_callback.h"
 #include "clzma_out_file.h"
 #include "clzma_path.h"
 
@@ -57,7 +58,6 @@ namespace CLzma {
 		int32_t _mode;
 		bool _isFullPath;
 
-
 		HRESULT getTestStream(uint32_t index, ISequentialOutStream **outStream);
 		HRESULT getExtractStream(uint32_t index, ISequentialOutStream **outStream);
 
@@ -85,6 +85,19 @@ namespace CLzma {
 		virtual ~ExtractCallback();
 	};
 	
+    
+    class ExtractCallback2 : public CLzma::BaseExtractCallback {
+    protected:
+        CLzma::Path * _extractPath;
+        bool _isFullPath;
+        
+        virtual HRESULT createExtractStreamAtIndex(const uint32_t index, ISequentialOutStream ** outStream);
+    public:
+        bool prepare(const char * extractPath, bool isFullPath);
+        ExtractCallback2(IInArchive * archive, CLzma::BaseCoder * coder);
+        virtual ~ExtractCallback2();
+    };
+
 }
 
 #endif 

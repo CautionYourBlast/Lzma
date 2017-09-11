@@ -41,6 +41,8 @@ namespace CLzma {
         void createObject(const int type, const GUID * iid, void ** outObject);
     public:
         void setPassword(const clzma_wchar_t * password);
+        const clzma_wchar_t * password() const;
+        
         virtual void onProgress(const double progress) = 0;
         
         // Required

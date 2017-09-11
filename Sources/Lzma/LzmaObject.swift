@@ -36,16 +36,6 @@ public class LzmaObject {
     private static var isRequireInitializedCallbacks = true
     
     private static func initializeCallbacks() {
-        clzma_common_set_wchars_to_chars_callback { src, srcLen, dst in
-            guard let cString = src?.string.cString(using: .utf8), let destination = dst, srcLen > 0 else {
-                return
-            }
-            var i = 0
-            for c in cString {
-                destination[i] = c
-                i += 1
-            }
-            destination[i] = 0
-        }
+        
     }
 }

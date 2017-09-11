@@ -91,14 +91,15 @@ namespace CLzma {
             return res;
         }
         
-        clzma_wchars_to_chars_callback cb = clzma_common_get_wchars_to_chars_callback();
-        char * cpath = (char *)clzma_malloc((pathLen + 1) * sizeof(clzma_wchar_t));
-        cb(pathProp.bstrVal, pathLen, cpath);
+//        clzma_wchars_to_chars_callback cb = clzma_common_get_wchars_to_chars_callback();
+//        char * cpath = (char *)clzma_malloc((pathLen + 1) * sizeof(clzma_wchar_t));
+//        cb(pathProp.bstrVal, pathLen, cpath);
         
         CLzma::Path pullPath(_dstPath->Ptr());
-        pullPath.appendPath(cpath);
+        CLzma::String cpath(pathProp.bstrVal);
+        pullPath.appendPath(cpath.Ptr());
         
-        clzma_free(cpath);
+//        clzma_free(cpath);
         
         if (CLzma::PROPVARIANTGetBool(&isDirProp)) {
             if (pullPath.createDir(true)) {
@@ -249,8 +250,13 @@ namespace CLzma {
 		}
 		return S_OK;
 	}
-
+    
 	bool ExtractCallback::prepare(const char * extractPath, bool isFullPath) {
+        if (!_archive) {
+            this->setLastError(E_ABORT, __LINE__, __FILE__, "No input archive");
+            return false;
+        }
+        
         if (_dstPath) {
             delete _dstPath;
             _dstPath = NULL;
@@ -292,6 +298,98 @@ namespace CLzma {
             delete _dstPath;
         }
 	}
-	
+
+    
+    
+    HRESULT ExtractCallback2::createExtractStreamAtIndex(const uint32_t index, ISequentialOutStream ** outStream) {
+        PROPVARIANT pathProp = { 0 }, isDirProp = { 0 };
+        if ((_archive->GetProperty(index, kpidPath, &pathProp) != S_OK) ||
+            (_archive->GetProperty(index, kpidIsDir, &isDirProp) != S_OK) ) {
+            this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't read archive property at index: %u", index);
+            return E_ABORT;
+        }
+        
+        const size_t pathLen = pathProp.bstrVal ? wcslen(pathProp.bstrVal) : 0;
+        if (pathLen == 0) {
+            return S_OK;
+        }
+        
+        CLzma::Path fullPath(_extractPath->Ptr());
+        CLzma::String cpath(pathProp.bstrVal);
+        fullPath.appendPath(cpath.Ptr());
+        
+        if (CLzma::PROPVARIANTGetBool(&isDirProp)) {
+            if (fullPath.createDir(true)) {
+                return S_OK;
+            } else {
+                this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't create item directory at index: %u", index);
+                return E_ABORT;
+            }
+        }
+        
+        CLzma::Path fullPathWithoutFileName(fullPath.Ptr());
+        fullPathWithoutFileName.deleteLastPathComponent();
+        
+        bool isDir = false;
+        if (fullPathWithoutFileName.exists(&isDir)) {
+            if (!isDir) {
+                this->setLastError(E_ABORT, __LINE__, __FILE__, "Subpath for item at index: %u exists as file: %a", index, fullPathWithoutFileName.Ptr());
+                return E_ABORT;
+            }
+        } else if (!fullPathWithoutFileName.createDir(true)) {
+            this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't create item directory at index: %u", index);
+            return E_ABORT;
+        }
+        
+        CLzma::OutFile * outFile = new CLzma::OutFile();
+        if (!outFile->open(fullPath.Ptr())) {
+            delete outFile;
+            this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't open destination for write: [%s]", fullPath.Ptr());
+            return E_ABORT;
+        }
+        
+        *outStream = outFile;
+        return S_OK;
+    }
+    
+    bool ExtractCallback2::prepare(const char * extractPath, bool isFullPath) {
+        if (_extractPath) {
+            delete _extractPath;
+            _extractPath = NULL;
+        }
+        
+        CLzma::Path * path = new CLzma::Path(extractPath);
+        _isFullPath = isFullPath;
+        
+        bool isDir = false;
+        if (path->exists(&isDir)) {
+            if (!isDir) {
+                delete path;
+                this->setLastError(-1, __LINE__, __FILE__, "Extract path: [%s] exists, but it's file", extractPath);
+                return false;
+            }
+        } if (!path->createDir(true)) {
+            delete path;
+            this->setLastError(-1, __LINE__, __FILE__, "Can't create directory path: [%s]", path->Ptr());
+            return false;
+        }
+        
+        _extractPath = path;
+        return true;
+    }
+    
+    ExtractCallback2::ExtractCallback2(IInArchive * archive, CLzma::BaseCoder * coder) : CLzma::BaseExtractCallback(archive, coder),
+        _extractPath(NULL),
+        _isFullPath(false) {
+    
+    }
+    
+    ExtractCallback2::~ExtractCallback2() {
+        if (_extractPath) {
+            delete _extractPath;
+        }
+    }
+    
+    
 }
 

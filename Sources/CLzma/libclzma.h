@@ -101,17 +101,12 @@ typedef wchar_t clzma_wchar_t;
 //#define CLZMA_METHOD_LZMA    0
 //#define CLZMA_METHOD_LZMA2   1
 
-// common
-typedef void (*clzma_wchars_to_chars_callback)(const clzma_wchar_t * src, const size_t src_len, clzma_char_t * dst);
-
-CLZMA_API(void) clzma_common_set_wchars_to_chars_callback(clzma_wchars_to_chars_callback cb);
-
-CLZMA_API(clzma_wchars_to_chars_callback) clzma_common_get_wchars_to_chars_callback(void);
-
 // mem
 CLZMA_API(void *) clzma_malloc(const size_t size);
 
 CLZMA_API(void *) clzma_malloc_zero(const size_t size);
+
+CLZMA_API(void *) clzma_realloc(void * mem, const size_t new_size);
 
 CLZMA_API(void) clzma_free(void * mem);
 

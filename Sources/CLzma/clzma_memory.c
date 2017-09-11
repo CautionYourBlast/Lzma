@@ -41,6 +41,15 @@ void * clzma_malloc_zero(const size_t size) {
     return mem;
 }
 
+void * clzma_realloc(void * mem, const size_t new_size) {
+    if (new_size > 0) {
+        void * new_mem = realloc(mem, new_size);
+        assert(new_mem);
+        return new_mem;
+    }
+    return NULL;
+}
+
 void clzma_free(void * mem) {
     if (mem) {
         free(mem);

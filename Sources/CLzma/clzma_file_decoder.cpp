@@ -51,36 +51,32 @@ namespace CLzma {
 		this->cleanExtractCallbackRef();
 		this->clearLastError();
 		
-		_extractCallbackRef = new CLzma::ExtractCallback();
-		_extractCallback = CMyComPtr<IArchiveExtractCallback>(_extractCallbackRef);
-		if (!_extractCallbackRef) {
-			this->setLastError(-1, __LINE__, __FILE__, "Can't create extract object");
-			return false;
-		}
-
+        CLzma::ExtractCallback2 * extractCallback = new CLzma::ExtractCallback2(_archive, this);
 		int32_t mode = NArchive::NExtract::NAskMode::kSkip;
 		if (path) {
-			if (_extractCallbackRef->prepare(path, isWithFullPaths)) {
+            if (extractCallback->prepare(path, isWithFullPaths)) {
 				mode = NArchive::NExtract::NAskMode::kExtract;
 			} else {
-				this->setLastError(_extractCallbackRef);
+                this->setLastError(extractCallback);
+                delete extractCallback;
 				return false;
 			}
 		} else {
 			mode = NArchive::NExtract::NAskMode::kTest;
 		}
+        extractCallback->setMode(mode);
 
-		_extractCallbackRef->setCoder(this);
-		_extractCallbackRef->setArchive(_archive);
-		_extractCallbackRef->setMode(mode);
+//		_extractCallbackRef->setCoder(this);
+//		_extractCallbackRef->setArchive(_archive);
+//		_extractCallbackRef->setMode(mode);
 
-		const HRESULT result = _archive->Extract(itemsIndices, itemsCount, mode, _extractCallback);
-		_extractCallbackRef->setArchive(NULL);
+		const HRESULT result = _archive->Extract(itemsIndices, itemsCount, mode, extractCallback);
+//		_extractCallbackRef->setArchive(NULL);
 
-		if (result != S_OK) {
-			this->setLastError(result, __LINE__, __FILE__, "Archive extract error with result: %lli", (long long)result);
-			return false;
-		}
+//		if (result != S_OK) {
+//			this->setLastError(result, __LINE__, __FILE__, "Archive extract error with result: %lli", (long long)result);
+//			return false;
+//		}
 
 		return true;
 	}

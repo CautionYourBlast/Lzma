@@ -142,7 +142,9 @@ namespace CLzma {
 			_updateCallbackRef->items = items;
 			_updateCallbackRef->coder = this;
 			const HRESULT result = _archive->UpdateItems(_outFileStream, numItems, _updateCallback);
-			if (result == S_OK) return true;
+            if (result == S_OK) {
+                return true;
+            }
 			this->setLastError(_updateCallbackRef);
 		}
 		return S_FALSE;

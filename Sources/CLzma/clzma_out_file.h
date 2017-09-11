@@ -34,25 +34,47 @@
 #include "C/7zCrc.h"
 
 namespace CLzma {
+    
+    class OutFile : public IOutStream, public CMyUnknownImp {
+    private:
+        FILE * _f;
+        
+    public:
+        MY_UNKNOWN_IMP1(IOutStream)
+        
+        STDMETHOD(Write)(const void * data, UInt32 size, UInt32 * processedSize);
+        STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 * newPosition);
+        STDMETHOD(SetSize)(UInt64 newSize);
+        
+        bool open(const char * path);
+        void close();
+        
+        OutFile();
+        virtual ~OutFile();
+    };
+    
+    class OutMemoryFile : public IOutStream, public CMyUnknownImp {
+    private:
+        uint8_t * _buff;
+        uint64_t _pos;
+        uint64_t _size;
+        uint64_t _allocated;
+        
+    public:
+        MY_UNKNOWN_IMP1(IOutStream)
+        
+        STDMETHOD(Write)(const void * data, UInt32 size, UInt32 * processedSize);
+        STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 * newPosition);
+        STDMETHOD(SetSize)(UInt64 newSize);
 
-	class OutFile : public IOutStream, public CMyUnknownImp {
-	private:
-		FILE * _f;
+        uint8_t * buff() const { return _buff; }
+        uint64_t size() const { return _size; }
 
-	public:
-		MY_UNKNOWN_IMP1(IOutStream)
-
-		STDMETHOD(Write)(const void *data, UInt32 size, UInt32 *processedSize);
-		STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition);
-		STDMETHOD(SetSize)(UInt64 newSize);
-
-		bool open(const char * path);
-		void close();
-
-		OutFile();
-		virtual ~OutFile();
-	};
-
+        
+        OutMemoryFile();
+        virtual ~OutMemoryFile();
+    };
+    
 }
 
 #endif 

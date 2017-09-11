@@ -85,56 +85,6 @@ add_definitions(-DCMAKE_BUILD)
 
 check_include_file("pthread.h" CLZMA_HAVE_PTHREAD_H)
 
-IF (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)
-  # Already in cache, be silent
-  SET(ICONV_FIND_QUIETLY TRUE)
-ENDIF (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)
-
-FIND_PATH(ICONV_INCLUDE_DIR iconv.h) 
- 
-FIND_LIBRARY(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
- 
-IF(ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
-   SET(ICONV_FOUND TRUE) 
-ENDIF(ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
-
-set(CMAKE_REQUIRED_INCLUDES ${ICONV_INCLUDE_DIR})
-set(CMAKE_REQUIRED_LIBRARIES ${ICONV_LIBRARIES})
-IF(ICONV_FOUND)
-  check_include_file("iconv.h" CLZMA_HAVE_ICONV_H)
-  check_cxx_source_compiles("
-  #include <iconv.h>
-  int main(){
-    iconv_t conv = 0;
-    const char* in = 0;
-    size_t ilen = 0;
-    char* out = 0;
-    size_t olen = 0;
-    iconv(conv, &in, &ilen, &out, &olen);
-    return 0;
-  }
-" ICONV_SECOND_ARGUMENT_IS_CONST )
-ENDIF(ICONV_FOUND)
-set(CMAKE_REQUIRED_INCLUDES)
-set(CMAKE_REQUIRED_LIBRARIES)
-
-IF(ICONV_FOUND) 
-  IF(NOT ICONV_FIND_QUIETLY)
-    MESSAGE(STATUS "Found Iconv include dir: ${ICONV_INCLUDE_DIR}") 
-    MESSAGE(STATUS "Found Iconv libraries: ${ICONV_LIBRARIES}") 
-  ENDIF(NOT ICONV_FIND_QUIETLY) 
-ELSE(ICONV_FOUND) 
-  IF(Iconv_FIND_REQUIRED) 
-    MESSAGE(FATAL_ERROR "Could not find Iconv") 
-  ENDIF(Iconv_FIND_REQUIRED) 
-ENDIF(ICONV_FOUND)
-
-MARK_AS_ADVANCED(
-  ICONV_INCLUDE_DIR
-  ICONV_LIBRARIES
-  ICONV_SECOND_ARGUMENT_IS_CONST
-)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -272,6 +222,7 @@ set(LIBCLZMA_SOURCES
 		Sources/CLzma/CPP/Windows/PropVariant.cpp
 		Sources/CLzma/CPP/Windows/PropVariantConv.cpp
 		Sources/CLzma/clzma_base_coder.cpp
+		Sources/CLzma/clzma_base_extract_callback.cpp
 		Sources/CLzma/clzma_common.cpp
 		Sources/CLzma/clzma_error.cpp
 		Sources/CLzma/clzma_extern.cpp
@@ -320,10 +271,6 @@ endif(CLZMA_OPT_STATIC)
 if(CLZMA_HAVE_PTHREAD_H)
 	target_link_libraries(clzma pthread)
 endif(CLZMA_HAVE_PTHREAD_H)
-
-if(CLZMA_HAVE_ICONV_H)
-	target_link_libraries(clzma ${ICONV_LIBRARIES})
-endif(CLZMA_HAVE_ICONV_H)
 
 install(TARGETS clzma
 		DESTINATION lib)

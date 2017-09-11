@@ -62,6 +62,10 @@ namespace CLzma {
         }
     }
     
+    const clzma_wchar_t * BaseCoder::password() const {
+        return _password.Len() > 0 ? _password.Ptr() : NULL;
+    }
+    
     BaseCoder::BaseCoder() : CLzma::LastErrorHolder() {
         CLzma::initialize();
     }

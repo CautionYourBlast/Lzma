@@ -26,10 +26,14 @@
 namespace CLzma {
 
 	STDMETHODIMP InFile::Read(void *data, UInt32 size, UInt32 *processedSize) {
-		if (processedSize) *processedSize = 0;
+        if (processedSize) {
+            *processedSize = 0;
+        }
 		if (_f && size > 0) {
 			const size_t r = fread(data, 1, size, _f);
-			if (processedSize) *processedSize = (UInt32)r;
+            if (processedSize) {
+                *processedSize = (UInt32)r;
+            }
 		}
 		return S_OK;
 	}
@@ -37,8 +41,17 @@ namespace CLzma {
 	STDMETHODIMP InFile::Seek(Int64 offset, uint32_t seekOrigin, UInt64 *newPosition) {
 		if (newPosition) *newPosition = 0;
 		if (_f) {
-			if (fseeko(_f, offset, seekOrigin) == 0) {
-				if (newPosition) *newPosition = ftello(_f);
+            int origin = 0;
+            switch (seekOrigin) {
+                case SZ_SEEK_SET: origin = SEEK_SET; break;
+                case SZ_SEEK_CUR: origin = SEEK_CUR; break;
+                case SZ_SEEK_END: origin = SEEK_END; break;
+                default: break;
+            }
+			if (fseeko(_f, offset, origin) == 0) {
+                if (newPosition) {
+                    *newPosition = ftello(_f);
+                }
 				return S_OK;
 			}
 		}
