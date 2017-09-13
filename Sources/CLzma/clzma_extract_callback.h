@@ -26,7 +26,7 @@
 
 #include "clzma_base_coder.h"
 #include "clzma_base_extract_callback.h"
-#include "clzma_out_file.h"
+#include "clzma_out_streams.h"
 #include "clzma_path.h"
 
 #include "CPP/7zip/Archive/IArchive.h"
@@ -48,7 +48,7 @@ namespace CLzma {
 		public CMyUnknownImp,
 		public CLzma::LastErrorHolder {
 	private:
-		CLzma::OutFile * _outFileStreamRef;
+		CLzma::FileStream * _outFileStreamRef;
 		CLzma::BaseCoder * _coder;
 		IInArchive * _archive;
         CLzma::Path * _dstPath;
@@ -91,13 +91,20 @@ namespace CLzma {
         CLzma::Path * _extractPath;
         bool _isFullPath;
         
-        virtual HRESULT createExtractStreamAtIndex(const uint32_t index, ISequentialOutStream ** outStream);
+        virtual HRESULT createExtractStreamAtIndex(const uint32_t index, CLzma::BaseOutStream ** outStream);
     public:
         bool prepare(const char * extractPath, bool isFullPath);
         ExtractCallback2(IInArchive * archive, CLzma::BaseCoder * coder);
         virtual ~ExtractCallback2();
     };
 
+    class ExtractCallback3 : public CLzma::BaseExtractCallback {
+    protected:
+        virtual HRESULT createExtractStreamAtIndex(const uint32_t index, CLzma::BaseOutStream ** outStream);
+    public:
+        ExtractCallback3(IInArchive * archive, CLzma::BaseCoder * coder);
+        virtual ~ExtractCallback3();
+    };
 }
 
 #endif 

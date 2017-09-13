@@ -124,7 +124,7 @@ namespace CLzma {
             return E_ABORT;
         }
         
-        CLzma::OutFile * outFile = new CLzma::OutFile();
+        CLzma::FileStream * outFile = new CLzma::FileStream();
         if (!outFile) {
             this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't create out file stream");
             return E_ABORT;
@@ -298,10 +298,10 @@ namespace CLzma {
             delete _dstPath;
         }
 	}
-
     
+    // ---------------------------------
     
-    HRESULT ExtractCallback2::createExtractStreamAtIndex(const uint32_t index, ISequentialOutStream ** outStream) {
+    HRESULT ExtractCallback2::createExtractStreamAtIndex(const uint32_t index, CLzma::BaseOutStream ** outStream) {
         PROPVARIANT pathProp = { 0 }, isDirProp = { 0 };
         if ((_archive->GetProperty(index, kpidPath, &pathProp) != S_OK) ||
             (_archive->GetProperty(index, kpidIsDir, &isDirProp) != S_OK) ) {
@@ -315,8 +315,12 @@ namespace CLzma {
         }
         
         CLzma::Path fullPath(_extractPath->Ptr());
-        CLzma::String cpath(pathProp.bstrVal);
-        fullPath.appendPath(cpath.Ptr());
+        CLzma::Path itemPath(pathProp.bstrVal);
+        if (_isFullPath) {
+            fullPath.appendPath(itemPath.Ptr());
+        } else {
+            fullPath.appendPath(itemPath.lastPathComponent());
+        }
         
         if (CLzma::PROPVARIANTGetBool(&isDirProp)) {
             if (fullPath.createDir(true)) {
@@ -341,7 +345,7 @@ namespace CLzma {
             return E_ABORT;
         }
         
-        CLzma::OutFile * outFile = new CLzma::OutFile();
+        CLzma::FileStream * outFile = new CLzma::FileStream();
         if (!outFile->open(fullPath.Ptr())) {
             delete outFile;
             this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't open destination for write: [%s]", fullPath.Ptr());
@@ -353,13 +357,7 @@ namespace CLzma {
     }
     
     bool ExtractCallback2::prepare(const char * extractPath, bool isFullPath) {
-        if (_extractPath) {
-            delete _extractPath;
-            _extractPath = NULL;
-        }
-        
         CLzma::Path * path = new CLzma::Path(extractPath);
-        _isFullPath = isFullPath;
         
         bool isDir = false;
         if (path->exists(&isDir)) {
@@ -370,10 +368,11 @@ namespace CLzma {
             }
         } if (!path->createDir(true)) {
             delete path;
-            this->setLastError(-1, __LINE__, __FILE__, "Can't create directory path: [%s]", path->Ptr());
+            this->setLastError(-1, __LINE__, __FILE__, "Can't make extract path: [%s]", path->Ptr());
             return false;
         }
         
+        _isFullPath = isFullPath;
         _extractPath = path;
         return true;
     }
@@ -390,6 +389,17 @@ namespace CLzma {
         }
     }
     
+    HRESULT ExtractCallback3::createExtractStreamAtIndex(const uint32_t index, CLzma::BaseOutStream ** outStream) {
+        *outStream = new CLzma::MemStream();
+    }
+    
+    ExtractCallback3::ExtractCallback3(IInArchive * archive, CLzma::BaseCoder * coder) : CLzma::BaseExtractCallback(archive, coder) {
+        
+    }
+    
+    ExtractCallback3::~ExtractCallback3() {
+        printf("DEL ~ExtractCallback3() \n");
+    }
     
 }
 

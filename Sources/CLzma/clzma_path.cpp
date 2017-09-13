@@ -106,7 +106,7 @@ namespace CLzma {
         return res;
     }
     
-    Path::Path(const char * s) : CLzma::String(s) {
+    void Path::removeEndingPathSeparator() {
         const size_t len = Len();
         if (len > 0) {
             const int sepPos = ReverseFind_PathSepar();
@@ -114,6 +114,14 @@ namespace CLzma {
                 DeleteBack();
             }
         }
+    }
+    
+    Path::Path(const char * s) : CLzma::String(s) {
+        removeEndingPathSeparator();
+    }
+    
+    Path::Path(const wchar_t * s) : CLzma::String(s) {
+        removeEndingPathSeparator();
     }
     
     bool Path::makeDir(const char * path) {

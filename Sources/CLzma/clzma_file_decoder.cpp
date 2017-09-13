@@ -25,7 +25,7 @@
 #include "clzma_common.h"
 #include "clzma_in_file.h"
 #include "clzma_open_callback.h"
-#include "clzma_out_file.h"
+#include "clzma_out_streams.h"
 
 #include "CPP/Common/MyWindows.h"
 #include "CPP/Common/Defs.h"
@@ -52,6 +52,7 @@ namespace CLzma {
 		this->clearLastError();
 		
         CLzma::ExtractCallback2 * extractCallback = new CLzma::ExtractCallback2(_archive, this);
+//        CLzma::ExtractCallback3 * extractCallback = new CLzma::ExtractCallback3(_archive, this);
 		int32_t mode = NArchive::NExtract::NAskMode::kSkip;
 		if (path) {
             if (extractCallback->prepare(path, isWithFullPaths)) {
@@ -66,17 +67,11 @@ namespace CLzma {
 		}
         extractCallback->setMode(mode);
 
-//		_extractCallbackRef->setCoder(this);
-//		_extractCallbackRef->setArchive(_archive);
-//		_extractCallbackRef->setMode(mode);
-
 		const HRESULT result = _archive->Extract(itemsIndices, itemsCount, mode, extractCallback);
-//		_extractCallbackRef->setArchive(NULL);
-
-//		if (result != S_OK) {
-//			this->setLastError(result, __LINE__, __FILE__, "Archive extract error with result: %lli", (long long)result);
-//			return false;
-//		}
+		if (result != S_OK) {
+            this->setLastError(extractCallback);
+			return false;
+		}
 
 		return true;
 	}

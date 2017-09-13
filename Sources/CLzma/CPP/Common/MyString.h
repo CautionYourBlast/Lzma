@@ -244,7 +244,7 @@ bool StringsAreEqualNoCase_Ascii(const wchar_t *s1, const wchar_t *s2) throw();
 
 class AString
 {
-protected:
+private:
   char *_chars;
   unsigned _len;
   unsigned _limit;
@@ -294,7 +294,7 @@ public:
   explicit AString(char c);
   explicit AString(const char *s);
   AString(const AString &s);
-  virtual ~AString() { printf("\n~AString();"); MY_STRING_DELETE(_chars); }
+  ~AString() { MY_STRING_DELETE(_chars); }
 
   unsigned Len() const { return _len; }
   bool IsEmpty() const { return _len == 0; }

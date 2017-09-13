@@ -25,7 +25,7 @@
 #define __CLZMA_UPDATE_CALLBACK_H__ 1
 
 #include "clzma_base_coder.h"
-#include "clzma_out_file.h"
+#include "clzma_out_streams.h"
 
 #include "CPP/7zip/Archive/IArchive.h"
 #include "CPP/7zip/IPassword.h"

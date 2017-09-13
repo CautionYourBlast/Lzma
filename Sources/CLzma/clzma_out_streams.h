@@ -21,8 +21,8 @@
  */
 
 
-#ifndef __CLZMA_OUT_FILE_H__
-#define __CLZMA_OUT_FILE_H__ 1
+#ifndef __CLZMA_OUT_STREAMS_H__
+#define __CLZMA_OUT_STREAMS_H__ 1
 
 #include "clzma_private.h"
 #include "clzma_common.h"
@@ -35,25 +35,31 @@
 
 namespace CLzma {
     
-    class OutFile : public IOutStream, public CMyUnknownImp {
+    class BaseOutStream : public IOutStream, public CMyUnknownImp {
+    public:
+        MY_UNKNOWN_IMP1(IOutStream)
+        virtual void close() = 0;
+        virtual ~BaseOutStream() { }
+    };
+    
+    class FileStream : public BaseOutStream {
     private:
         FILE * _f;
         
     public:
-        MY_UNKNOWN_IMP1(IOutStream)
-        
         STDMETHOD(Write)(const void * data, UInt32 size, UInt32 * processedSize);
         STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 * newPosition);
         STDMETHOD(SetSize)(UInt64 newSize);
         
-        bool open(const char * path);
-        void close();
+        virtual void close();
         
-        OutFile();
-        virtual ~OutFile();
+        bool open(const char * path);
+        
+        FileStream();
+        virtual ~FileStream();
     };
     
-    class OutMemoryFile : public IOutStream, public CMyUnknownImp {
+    class MemStream : public BaseOutStream {
     private:
         uint8_t * _buff;
         uint64_t _pos;
@@ -61,18 +67,17 @@ namespace CLzma {
         uint64_t _allocated;
         
     public:
-        MY_UNKNOWN_IMP1(IOutStream)
-        
         STDMETHOD(Write)(const void * data, UInt32 size, UInt32 * processedSize);
         STDMETHOD(Seek)(Int64 offset, UInt32 seekOrigin, UInt64 * newPosition);
         STDMETHOD(SetSize)(UInt64 newSize);
-
+        
+        virtual void close();
+        
         uint8_t * buff() const { return _buff; }
         uint64_t size() const { return _size; }
-
         
-        OutMemoryFile();
-        virtual ~OutMemoryFile();
+        MemStream();
+        virtual ~MemStream();
     };
     
 }

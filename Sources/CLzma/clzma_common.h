@@ -40,8 +40,13 @@ namespace CLzma {
     bool PROPVARIANTGetBool(PROPVARIANT * prop);
     time_t FILETIMEToUnixTime(const FILETIME filetime);
     FILETIME UnixTimeToFILETIME(const time_t t);
-    int wideToChars(const wchar_t * wideString, int wideStringLength, char * charsString);
-    int charsToWide(const char * charsString, int charsStringLengthOrNegative, wchar_t * wideString);
+    
+    template<typename T>
+    int compareIndices(const void * a, const void * b) {
+        if ( *(T*)a < *(T*)b ) return -1;
+        else if ( *(T*)a > *(T*)b ) return 1;
+        return 0;
+    }
 }
 
 #endif

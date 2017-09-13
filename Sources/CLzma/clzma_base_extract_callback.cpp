@@ -30,12 +30,7 @@
 
 namespace CLzma {
     
-    HRESULT BaseExtractCallback::createTestStreamAtIndex(const uint32_t index, ISequentialOutStream ** outStream) {
-        *outStream = new CDummyOutStream();
-        return S_OK;
-    }
-    
-    HRESULT BaseExtractCallback::createExtractStreamAtIndex(const uint32_t index, ISequentialOutStream ** outStream) {
+    HRESULT BaseExtractCallback::createExtractStreamAtIndex(const uint32_t index, CLzma::BaseOutStream ** outStream) {
         return S_OK;
     }
     
@@ -65,23 +60,45 @@ namespace CLzma {
     }
     
     STDMETHODIMP BaseExtractCallback::GetStream(UInt32 index, ISequentialOutStream ** outStream, Int32 askExtractMode) {
-        *outStream = NULL;
+        if (_outStream != NULL) {
+            _outStream->close();
+        }
+        _outStream.Release();
+        
+        if (_indices) {
+            uint32_t key = index;
+            if (!bsearch(&key, _indices, _indicesCount, sizeof(uint32_t), CLzma::compareIndices<uint32_t>)) {
+                return S_OK;
+            }
+        }
+        
+        CLzma::BaseOutStream * stream = NULL;
         HRESULT res = E_FAIL;
         switch (_mode) {
             case NArchive::NExtract::NAskMode::kExtract:
-                res = this->createExtractStreamAtIndex(index, outStream);
+                res = this->createExtractStreamAtIndex(index, &stream);
                 break;
-            case NArchive::NExtract::NAskMode::kTest:
-                res = this->createTestStreamAtIndex(index, outStream);
+            case NArchive::NExtract::NAskMode::kTest: {
+                *outStream = new CDummyOutStream();
+                return S_OK;
+            }
                 break;
             case NArchive::NExtract::NAskMode::kSkip:
                 return S_OK;
                 break;
         }
         if (res != S_OK) {
+            if (stream) {
+                delete stream;
+            }
             this->setLastError(E_ABORT, __LINE__, __FILE__, "Can't create extract or test stream");
             return res;
         }
+        
+        CMyComPtr<CLzma::BaseOutStream> outStreamLoc(stream);
+        _outStream = outStreamLoc;
+        *outStream = outStreamLoc.Detach();
+        
         return S_OK;
     }
     
@@ -131,6 +148,9 @@ namespace CLzma {
             default:
                 break;
         }
+        if (_outStream != NULL) {
+            _outStream->close(); // close, do not release
+        }
         return res;
     }
     
@@ -147,6 +167,15 @@ namespace CLzma {
         return p ? StringToBstr(p, password): S_OK;
     }
     
+    CMyComPtr<CLzma::BaseOutStream> BaseExtractCallback::outStream() const {
+        return _outStream;
+    }
+    
+    void BaseExtractCallback::setIndices(uint32_t * indices, const size_t indicesCount) {
+        _indices = indices;
+        _indicesCount = indicesCount;
+    }
+    
     void BaseExtractCallback::setMode(int32_t mode) {
         _mode = mode;
     }
@@ -154,13 +183,19 @@ namespace CLzma {
     BaseExtractCallback::BaseExtractCallback(IInArchive * archive, CLzma::BaseCoder * coder) : CLzma::LastErrorHolder(),
         _archive(archive),
         _coder(coder),
+        _indices(NULL),
         _total(0),
+        _indicesCount(0),
         _mode(NArchive::NExtract::NAskMode::kSkip) {
         
     }
     
     BaseExtractCallback::~BaseExtractCallback() {
-        
+        if (_outStream != NULL) {
+            _outStream->close();
+        }
+        _outStream.Release();
+        printf("DEL ~BaseExtractCallback() \n");
     }
     
 }

@@ -30,6 +30,8 @@ namespace CLzma {
     class Path : public CLzma::String {
     
     private:
+        void removeEndingPathSeparator();
+        
         static bool makeDir(const char * path);
         static bool exists(const char * path, bool * is_dir);
         static bool existsDir(const char * path);
@@ -41,6 +43,7 @@ namespace CLzma {
         bool createDir(bool with_intermediate_directories = true) const;
         bool exists(bool * is_dir = NULL) const;
         Path(const char * s);
+        Path(const wchar_t * s);
     };
 }
 

@@ -21,11 +21,11 @@
  */
 
 
-#include "clzma_out_file.h"
+#include "clzma_out_streams.h"
 
 namespace CLzma {
     
-    STDMETHODIMP OutFile::Write(const void *data, UInt32 size, UInt32 *processedSize) {
+    STDMETHODIMP FileStream::Write(const void *data, UInt32 size, UInt32 *processedSize) {
         if (_f) {
             const size_t writed = fwrite(data, 1, size, _f);
             if (processedSize) {
@@ -35,7 +35,7 @@ namespace CLzma {
         return S_OK;
     }
     
-    STDMETHODIMP OutFile::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+    STDMETHODIMP FileStream::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
         if (_f) {
             int origin = 0;
             switch (seekOrigin) {
@@ -55,29 +55,31 @@ namespace CLzma {
         return S_OK;
     }
     
-    STDMETHODIMP OutFile::SetSize(UInt64 newSize) {
+    STDMETHODIMP FileStream::SetSize(UInt64 newSize) {
         return S_OK;
     }
     
-    bool OutFile::open(const char * path) {
+    bool FileStream::open(const char * path) {
         if (path) {
             _f = fopen(path, "w+b");
         }
         return (_f != NULL);
     }
     
-    void OutFile::close() {
+    void FileStream::close() {
         if (_f) {
+            printf("FileStream close \n");
             fclose(_f);
             _f = NULL;
         }
     }
     
-    OutFile::OutFile() : _f(NULL) {
-        
+    FileStream::FileStream() : _f(NULL) {
+        printf("NEW ~FileStream() \n");
     }
     
-    OutFile::~OutFile() {
+    FileStream::~FileStream() {
+        printf("DEL ~FileStream() \n");
         if (_f) {
             fclose(_f);
             _f = NULL;
@@ -85,11 +87,11 @@ namespace CLzma {
     }
 
     
-    STDMETHODIMP OutMemoryFile::Write(const void *data, UInt32 size, UInt32 *processedSize) {
+    STDMETHODIMP MemStream::Write(const void *data, UInt32 size, UInt32 *processedSize) {
         return S_OK;
     }
     
-    STDMETHODIMP OutMemoryFile::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+    STDMETHODIMP MemStream::Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
         switch (seekOrigin) {
             case SZ_SEEK_SET:  break;
             case SZ_SEEK_CUR:  break;
@@ -99,7 +101,7 @@ namespace CLzma {
         return S_OK;
     }
     
-    STDMETHODIMP OutMemoryFile::SetSize(UInt64 newSize) {
+    STDMETHODIMP MemStream::SetSize(UInt64 newSize) {
         if (_allocated < newSize) {
             _buff = _buff ? (uint8_t *)clzma_realloc(_buff, newSize) : (uint8_t *)clzma_malloc(newSize);
             _allocated = newSize;
@@ -107,16 +109,16 @@ namespace CLzma {
         return S_OK;
     }
     
-    OutMemoryFile::OutMemoryFile():
-        _buff(NULL),
-        _pos(0),
-        _size(0),
-        _allocated(0) {
-        
+    void MemStream::close() {
+        printf("MemStream close \n");
     }
     
-    OutMemoryFile::~OutMemoryFile() {
-        
+    MemStream::MemStream(): _buff(NULL), _pos(0), _size(0), _allocated(0) {
+        printf("NEW MemStream() \n");
+    }
+    
+    MemStream::~MemStream() {
+        printf("DEL ~MemStream() \n");
     }
 }
 

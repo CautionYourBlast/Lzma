@@ -38,6 +38,9 @@ namespace CLzma {
         String(const UString & s);
         String(const char * s);
         String(const wchar_t * s);
+        
+        static int wideToChars(const wchar_t * wideString, int wideStringLength, char * charsString);
+        static int charsToWide(const char * charsString, int charsStringLengthOrNegative, wchar_t * wideString);
     };
     
 }
