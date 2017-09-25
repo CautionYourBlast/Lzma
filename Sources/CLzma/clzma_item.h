@@ -25,21 +25,33 @@
 #define __CLZMA_ITEM_H__ 1
 
 #include "clzma_private.h"
+#include "clzma_common.h"
+#include "clzma_string.h"
+#include "clzma_path.h"
+
 #include <time.h>
 
-#define clzma_item_flag_is_encrypted     (uint8_t)(1)
-#define clzma_item_flag_is_dir           (uint8_t)(1 << 1)
-
-struct clzma_item_struct {
-    clzma_wchar_t * name;
-    uint64_t size;
-    uint64_t pack_size;
-    uint32_t index;
-    uint32_t crc;
-    time_t creation_time;
-    time_t access_time;
-    time_t modification_time;
-    uint8_t flags;
-};
+namespace CLzma {
+    class Item {
+    private:
+        CLzma::Path _path;
+        uint32_t _index;
+        
+    public:
+        uint64_t size;
+        uint64_t packSize;
+        uint32_t crc32;
+        time_t creationTime;
+        time_t accessTime;
+        time_t modificationTime;
+        bool isEncrypted;
+        bool isDir;
+        
+        const char * path() const { return _path.Ptr(); }
+        uint32_t index() const { return _index; }
+        
+        Item(BSTR path, const uint32_t index);
+    };
+}
 
 #endif

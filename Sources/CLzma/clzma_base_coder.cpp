@@ -55,6 +55,14 @@ namespace CLzma {
         }
     }
     
+    void * BaseCoder::userObject() const {
+        return _userObject;
+    }
+    
+    void BaseCoder::setUserObject(void * userObject) {
+        _userObject = userObject;
+    }
+    
     void BaseCoder::setPassword(const clzma_wchar_t * password) {
         _password.Empty();
         if (password) {
@@ -66,7 +74,8 @@ namespace CLzma {
         return _password.Len() > 0 ? _password.Ptr() : NULL;
     }
     
-    BaseCoder::BaseCoder() : CLzma::LastErrorHolder() {
+    BaseCoder::BaseCoder() : CLzma::LastErrorHolder(),
+        _userObject(NULL) {
         CLzma::initialize();
     }
     

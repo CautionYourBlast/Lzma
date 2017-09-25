@@ -24,9 +24,9 @@
 import Foundation
 import CLzma
 
-public struct LzmaItem {
+public class LzmaItem {
     
-    public let name: String
+    public let path: String
     
     public let size: UInt64
     
@@ -47,10 +47,10 @@ public struct LzmaItem {
     internal let index: UInt32
     
     internal init(item: clzma_item_t) {
-        if let name = clzma_item_get_name(item) {
-            self.name = name.string
+        if let cPath = clzma_item_get_path(item), let path = String(cString: cPath, encoding: .utf8) {
+            self.path = path
         } else {
-            self.name = ""
+            self.path = ""
         }
         self.size = clzma_item_get_size(item)
         self.packedSize = clzma_item_get_packed_size(item)

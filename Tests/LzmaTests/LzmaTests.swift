@@ -63,8 +63,7 @@ class LzmaTests: XCTestCase {
         let items = reader.map { return $0 }
         print("\(items)")
         
-//        XCTAssertFalse(reader.extract(items: items, toPath: "München"))
-        XCTAssertTrue(reader.extract(items: items, toPath: "/Users/olehkulykov/Downloads/Дир/Дир/"))
+        XCTAssertTrue(reader.extract(to: "/Users/olehkulykov/Downloads/Дир/Дир/", items: items, usingFullPaths: true))
     }
 
     static var allTests = [

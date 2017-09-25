@@ -85,9 +85,9 @@
 // combined lib api
 #define CLZMA_API(return_type) CLZMA_EXTERN CLZMA_ATTRIB CLZMA_DYLIB_API return_type
 
-typedef struct clzma_reader_struct * clzma_reader_t;
+typedef void * clzma_reader_t;
 typedef struct clzma_writer_struct * clzma_writer_t;
-typedef struct clzma_item_struct * clzma_item_t;
+typedef void * clzma_item_t;
 typedef void * clzma_error_t;
 typedef char clzma_char_t;
 typedef wchar_t clzma_wchar_t;
@@ -119,47 +119,43 @@ CLZMA_API(void) clzma_reader_set_progress_callback(clzma_reader_t reader, void (
 
 CLZMA_API(void) clzma_reader_set_password(clzma_reader_t reader, const clzma_wchar_t * password);
 
-/**
- @param type CLZMA_FILE_TYPE_UNDEFINED (0) | CLZMA_FILE_TYPE_7Z (1)
- */
-CLZMA_API(void) clzma_reader_set_type(clzma_reader_t reader, const int32_t type);
-
-/**
- @return CLZMA_FILE_TYPE_UNDEFINED (0) | CLZMA_FILE_TYPE_7Z (1)
- */
-CLZMA_API(int32_t) clzma_reader_get_type(clzma_reader_t reader);
-
 CLZMA_API(void) clzma_reader_set_user_object(clzma_reader_t reader, void * user_object);
 
 CLZMA_API(void *) clzma_reader_get_user_object(clzma_reader_t reader);
 
 /**
+ @param type CLZMA_FILE_TYPE_UNDEFINED (0) | CLZMA_FILE_TYPE_7Z (1)
  @return CLZMA_TRUE (1) | CLZMA_FALSE (0)
  */
-CLZMA_API(int) clzma_reader_open_file_path(clzma_reader_t reader, const clzma_char_t * file_path);
+CLZMA_API(int) clzma_reader_open_file_path(clzma_reader_t reader, const clzma_char_t * file_path, const int32_t type);
 
 CLZMA_API(uint32_t) clzma_reader_get_items_count(clzma_reader_t reader);
 
 CLZMA_API(clzma_item_t) clzma_reader_get_item_at_index(clzma_reader_t reader, const uint32_t index);
 
-CLZMA_API(int) clzma_reader_process_items(clzma_reader_t reader,
+CLZMA_API(int) clzma_reader_extract_items(clzma_reader_t reader,
                                           const clzma_item_t * items,
                                           const uint32_t items_count,
                                           const clzma_char_t * path,
                                           const int is_with_full_paths);
 
-CLZMA_API(int) clzma_reader_process_item_indices(clzma_reader_t reader,
+/**
+ @param items_indices Sorted list of item indices. Use 'qsort' to sort indices before.
+ */
+CLZMA_API(int) clzma_reader_extract_item_indices(clzma_reader_t reader,
                                                  const uint32_t * items_indices,
                                                  const uint32_t items_count,
                                                  const clzma_char_t * path,
                                                  const int is_with_full_paths);
+
+CLZMA_API(int) clzma_reader_extract_all_items(clzma_reader_t reader, const clzma_char_t * path, const int is_with_full_paths);
 
 CLZMA_API(clzma_error_t) clzma_reader_get_last_error(clzma_reader_t reader);
 
 CLZMA_API(void) clzma_reader_delete(clzma_reader_t reader);
 
 // item
-CLZMA_API(const clzma_wchar_t *) clzma_item_get_name(clzma_item_t item);
+CLZMA_API(const clzma_char_t *) clzma_item_get_path(clzma_item_t item);
 
 CLZMA_API(uint64_t) clzma_item_get_size(clzma_item_t item);
 

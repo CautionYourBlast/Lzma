@@ -23,58 +23,75 @@
 
 #include "clzma_item.h"
 
-const clzma_wchar_t * clzma_item_get_name(clzma_item_t item) {
+namespace CLzma {
+    
+    Item::Item(BSTR path, const uint32_t index) :
+        _path(path),
+        _index(0),
+        size(0),
+        packSize(0),
+        crc32(0),
+        creationTime(0),
+        accessTime(0),
+        modificationTime(0),
+        isEncrypted(false),
+        isDir(false) {
+        
+        }
+}
+
+const clzma_char_t * clzma_item_get_path(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->name;
+    return ((CLzma::Item *)item)->path();
 }
 
 uint64_t clzma_item_get_size(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->size;
+    return ((CLzma::Item *)item)->size;
 }
 
 uint64_t clzma_item_get_packed_size(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->pack_size;
+    return ((CLzma::Item *)item)->packSize;
 }
 
 uint32_t clzma_item_get_index(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->index;
+    return ((CLzma::Item *)item)->index();
 }
 
 uint32_t clzma_item_get_crc32(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->crc;
+    return ((CLzma::Item *)item)->crc32;
 }
 
 time_t clzma_item_get_creation_time(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->creation_time;
+    return ((CLzma::Item *)item)->creationTime;
 }
 
 time_t clzma_item_get_access_time(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->access_time;
+    return ((CLzma::Item *)item)->accessTime;
 }
 
 time_t clzma_item_get_modification_time(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return item->modification_time;
+    return ((CLzma::Item *)item)->modificationTime;
 }
 
 int clzma_item_is_encrypted(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return (item->flags & clzma_item_flag_is_encrypted) ? 1 : 0;
+    return ((CLzma::Item *)item)->isEncrypted ? CLZMA_TRUE : CLZMA_FALSE;
 }
 
 int clzma_item_is_dir(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    return (item->flags & clzma_item_flag_is_dir) ? 1 : 0;
+    return ((CLzma::Item *)item)->isDir ? CLZMA_TRUE : CLZMA_FALSE;
 }
 
 void clzma_item_delete(clzma_item_t item) {
     CLZMA_ASSERT(item)
-    clzma_free(item->name);
-    clzma_free(item);
+    CLzma::Item * i = (CLzma::Item *)item;
+    delete i;
 }

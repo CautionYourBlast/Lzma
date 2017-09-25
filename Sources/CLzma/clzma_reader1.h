@@ -21,45 +21,16 @@
  */
 
 
-#ifndef __CLZMA_BASE_CODER_H__
-#define __CLZMA_BASE_CODER_H__ 1
+#ifndef __CLZMA_READER1_H__
+#define __CLZMA_READER1_H__ 1
 
 #include "clzma_private.h"
-#include "clzma_common.h"
-#include "clzma_error.h"
-#include "clzma_string.h"
-#include "clzma_path.h"
+#include "clzma_reader.h"
 
-#include "CPP/Common/MyGuidDef.h"
-
-namespace CLzma {
-    
-    class BaseCoder : public CLzma::LastErrorHolder {
-    private:
-        void * _userObject;
-    protected:
-        UString _password;
-        
-        void createObject(const int type, const GUID * iid, void ** outObject);
-    public:
-        void * userObject() const;
-        void setUserObject(void * userObject);
-        
-        void setPassword(const clzma_wchar_t * password);
-        const clzma_wchar_t * password() const;
-        
-        virtual void onProgress(const double progress) = 0;
-        
-        // Required
-        // find codec, create encode/decode object and check error.
-        virtual bool prepare(const int type) = 0;
-        
-        virtual bool openFile(const char * path) = 0;
-        
-        BaseCoder();
-        virtual ~BaseCoder();
-    };
-    
-}
+struct clzma_reader_struct {
+    CLzma::Reader * decoder;
+    void * user_object;
+    int32_t type;
+};
 
 #endif

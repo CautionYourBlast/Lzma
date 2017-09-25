@@ -68,18 +68,18 @@ namespace CLzma {
     
     void FileStream::close() {
         if (_f) {
-            printf("FileStream close \n");
+            CLZMA_DEBUG_LOG("FileStream close \n")
             fclose(_f);
             _f = NULL;
         }
     }
     
     FileStream::FileStream() : _f(NULL) {
-        printf("NEW ~FileStream() \n");
+        CLZMA_DEBUG_LOG("NEW ~FileStream() \n")
     }
     
     FileStream::~FileStream() {
-        printf("DEL ~FileStream() \n");
+        CLZMA_DEBUG_LOG("DEL ~FileStream() \n")
         if (_f) {
             fclose(_f);
             _f = NULL;
@@ -110,15 +110,15 @@ namespace CLzma {
     }
     
     void MemStream::close() {
-        printf("MemStream close \n");
+        CLZMA_DEBUG_LOG("MemStream close \n")
     }
     
     MemStream::MemStream(): _buff(NULL), _pos(0), _size(0), _allocated(0) {
-        printf("NEW MemStream() \n");
+        CLZMA_DEBUG_LOG("NEW MemStream() \n")
     }
     
     MemStream::~MemStream() {
-        printf("DEL ~MemStream() \n");
+        CLZMA_DEBUG_LOG("DEL ~MemStream() \n")
     }
 }
 

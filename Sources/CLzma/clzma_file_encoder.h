@@ -34,14 +34,14 @@
 #include "CPP/Common/MyString.h"
 #include "CPP/Windows/PropVariant.h"
 
-#define CLZMA_ENC_SOLID			(1 << 0)
-#define CLZMA_ENC_COMPR_HDR		(1 << 1)
-#define CLZMA_ENC_COMPR_HDR_FULL	(1 << 2)
-#define CLZMA_ENC_ENC_CONTENT	(1 << 3)
-#define CLZMA_ENC_ENC_HEADER		(1 << 4)
-#define CLZMA_ENC_WRITE_CTIME	(1 << 5)
-#define CLZMA_ENC_WRITE_MTIME	(1 << 6)
-#define CLZMA_ENC_WRITE_ATIME	(1 << 7)
+#define CLZMA_ENC_SOLID             (1 << 0)
+#define CLZMA_ENC_COMPR_HDR         (1 << 1)
+#define CLZMA_ENC_COMPR_HDR_FULL    (1 << 2)
+#define CLZMA_ENC_ENC_CONTENT       (1 << 3)
+#define CLZMA_ENC_ENC_HEADER        (1 << 4)
+#define CLZMA_ENC_WRITE_CTIME       (1 << 5)
+#define CLZMA_ENC_WRITE_MTIME       (1 << 6)
+#define CLZMA_ENC_WRITE_ATIME       (1 << 7)
 
 namespace CLzma {
 	

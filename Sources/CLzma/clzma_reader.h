@@ -24,13 +24,72 @@
 #ifndef __CLZMA_READER_H__
 #define __CLZMA_READER_H__ 1
 
-#include "clzma_private.h"
-#include "clzma_file_decoder.h"
+#include "clzma_base_coder.h"
+#include "clzma_item.h"
+#include "clzma_open_callback.h"
+#include "clzma_extract_callback.h"
 
-struct clzma_reader_struct {
-    CLzma::FileDecoder * decoder;
-    void * user_object;
-    int32_t type;
-};
+#include "CPP/7zip/Archive/IArchive.h"
+#include "CPP/7zip/IPassword.h"
+#include "CPP/Common/MyCom.h"
+#include "CPP/Common/MyString.h"
+#include "CPP/Windows/PropVariant.h"
 
-#endif
+namespace CLzma {
+	
+	class Reader : public CLzma::BaseCoder {
+	private:
+        clzma_reader_t _reader;
+        void (*_progressCallback)(clzma_reader_t reader, const double progress);
+		CLzma::OpenCallback * _openCallbackRef;
+		CLzma::ExtractCallback * _extractCallbackRef;
+
+		CMyComPtr<IInArchive> _archive;
+		CMyComPtr<IInStream> _inFile;
+		CMyComPtr<IArchiveOpenCallback> _openCallback;
+		CMyComPtr<IArchiveExtractCallback> _extractCallback;
+
+		uint32_t _itemsCount;
+
+		void cleanOpenCallbackRef();
+		void cleanExtractCallbackRef();
+
+	public:
+        bool isSolidArchive() const;
+        CLzma::Item * itemAtIndex(const uint32_t index);
+        
+        // old
+        void setReader(clzma_reader_t reader);
+        void setProgressCallback(void (*cb)(clzma_reader_t reader, const double progress));
+        
+        virtual void onProgress(const double progress);
+        
+        uint32_t itemsCount() const;
+        
+        bool readIteratorProperty(PROPVARIANT * property, const uint32_t identifier, const uint32_t index);
+        
+        /**
+         @brief Extract specific items.
+         */
+		bool extract(const uint32_t * itemsIndices,
+					 const uint32_t itemsCount,
+					 const char * path = NULL,
+					 bool isWithFullPaths = false);
+        
+        /**
+         @brief Extract all items.
+         */
+        bool extract(const char * path = NULL, bool isWithFullPaths = false);
+
+		// Required section, `lzma_wrp::base_coder`
+		// find codec, create encode/decode object and check error.
+		virtual bool prepare(const int type);
+
+		virtual bool openFile(const char * path);
+
+		Reader();
+		virtual ~Reader();
+	};
+}
+
+#endif 

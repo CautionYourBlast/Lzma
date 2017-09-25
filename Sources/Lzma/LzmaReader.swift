@@ -29,15 +29,15 @@ public protocol LzmaReaderDelegate: class {
 }
 
 public final class LzmaReader: LzmaObject, Sequence {
-    
-    public private(set) var type: LzmaFileType {
-        get {
-            return LzmaFileType(rawValue: clzma_reader_get_type(reader))!
-        }
-        set {
-            clzma_reader_set_type(reader, newValue.rawValue)
-        }
-    }
+    //TODO: type
+//    public private(set) var type: LzmaFileType {
+//        get {
+//            return LzmaFileType(rawValue: clzma_reader_get_type(reader))!
+//        }
+//        set {
+//            clzma_reader_set_type(reader, newValue.rawValue)
+//        }
+//    }
     
     public weak var delegate: LzmaReaderDelegate?
     
@@ -99,36 +99,44 @@ public final class LzmaReader: LzmaObject, Sequence {
     public init(url: URL, type: LzmaFileType) {
         self.url = url
         super.init()
-        
-        self.type = type
+        //TODO: type
+//        self.type = type
         setupReader()
     }
     
     public func open() -> Bool {
-        guard let path = url.path.cString(using: .utf8), clzma_reader_open_file_path(reader, path) != 0 else {
+        //TODO: type
+        guard let path = url.path.cString(using: .utf8), clzma_reader_open_file_path(reader, path, 1) != 0 else {
             return false
         }
         return true
     }
     
-    public func extract(items: [LzmaItem], toPath path: String, usingFullPaths: Bool = true) -> Bool {
-        if items.isEmpty {
-            return true
-        }
-        let count = items.count
+    public func extract(to path: String, items: [LzmaItem]? = nil, usingFullPaths: Bool = true) -> Bool {
         guard let cPath = path.cString(using: .utf8) else {
             return false
         }
         
-        let indices = UnsafeMutablePointer<UInt32>.allocate(capacity: count)
-        var index = 0
-        for item in items {
-            indices[index] = item.index
-            index += 1
+        let sorted = items?.sorted { a, b in
+            return a.index < b.index
         }
-        let result = clzma_reader_process_item_indices(reader, indices, UInt32(count), cPath, usingFullPaths ? 1 : 0)
-        indices.deinitialize()
-        return result != 0
+        
+        if let sortedItems = sorted  {
+            if sortedItems.isEmpty {
+                return true
+            }
+            let count = sortedItems.count
+            let sortedIndices = UnsafeMutablePointer<UInt32>.allocate(capacity: count)
+            var index = 0
+            for item in sortedItems {
+                sortedIndices[index] = item.index
+                index += 1
+            }
+            let result = clzma_reader_extract_item_indices(reader, sortedIndices, UInt32(count), cPath, usingFullPaths ? 1 : 0)
+            sortedIndices.deinitialize()
+            return result != 0
+        }
+        return clzma_reader_extract_all_items(reader, cPath, usingFullPaths ? 1 : 0) != 0
     }
     
     deinit {
