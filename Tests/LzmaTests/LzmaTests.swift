@@ -63,6 +63,8 @@ class LzmaTests: XCTestCase {
         let items = reader.map { return $0 }
         print("\(items)")
         
+//        XCTAssertTrue(reader.extract(to: "/Users/olehkulykov/Downloads/Дир/Дир/", items: items, usingFullPaths: true))
+        reader.extract(to: "/Users/olehkulykov/Downloads/Дир/Дир/", items: nil, usingFullPaths: true)
         XCTAssertTrue(reader.extract(to: "/Users/olehkulykov/Downloads/Дир/Дир/", items: items, usingFullPaths: true))
     }
 

@@ -41,6 +41,7 @@
 #include "CPP/7zip/Archive/IArchive.h"
 #include "CPP/7zip/IPassword.h"
 
+#define CLZMA_READ_EXTRACT_ALL_MAX_INDICIES 100
 
 namespace CLzma {
     
@@ -113,6 +114,7 @@ namespace CLzma {
         this->clearLastError();
         
         CLzma::ExtractCallback2 * extractCallback = new CLzma::ExtractCallback2(_archive, this);
+        CMyComPtr<CLzma::ExtractCallback2> extractCallbackHolder(extractCallback);
         
         int32_t mode = NArchive::NExtract::NAskMode::kSkip;
         if (path) {
@@ -129,15 +131,13 @@ namespace CLzma {
         extractCallback->setMode(mode);
         
         size_t processed = 0;
-        const size_t maxIndicies = 1;
-        uint32_t indices[maxIndicies];
+        uint32_t indices[CLZMA_READ_EXTRACT_ALL_MAX_INDICIES];
         bool extracting = true;
         while (extracting) {
             uint32_t count = 0;
-            while (count < maxIndicies && processed < _itemsCount) {
+            while (count < CLZMA_READ_EXTRACT_ALL_MAX_INDICIES && processed < _itemsCount) {
                 indices[count++] = processed++;
             }
-            CMyComPtr<CLzma::ExtractCallback2> extractCallbackHolder(extractCallback);
             const HRESULT result = (count > 0) ? _archive->Extract(indices, count, mode, extractCallback) : S_OK;
             if (result != S_OK) {
                 this->setLastError(extractCallback);
