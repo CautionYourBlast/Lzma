@@ -144,8 +144,45 @@ public final class LzmaReader: LzmaObject, Sequence {
         clzma_reader_delete(reader)
     }
     
+    public func item(matching fn: (LzmaItem) -> Int, sorted: Bool = false) -> LzmaItem? {
+        
+        var startRange = UInt32(0)
+        var endRange = self.count
+        
+        if !sorted {
+            for item in makeIterator() {
+                if fn(item) == 0 {
+                    return item
+                }
+            }
+        } else {
+            while true {
+                let index = (startRange + endRange) / 2
+                guard let nativeItem = clzma_reader_get_item_at_index(reader, index) else {
+                    continue
+                }
+                let item = LzmaItem(item: nativeItem)
+                clzma_item_delete(nativeItem)
+
+                let result = fn(item)
+                if result == 0 {
+                    return item
+                }
+                if index == endRange {
+                    break
+                }
+                if result < 0 {
+                    endRange = index
+                } else {
+                    startRange = index
+                }
+            }
+        }
+        return nil
+    }
+    
     //MARK: Sequence
-    public struct Iterator: IteratorProtocol {
+    public struct Iterator: Sequence, IteratorProtocol {
         public typealias Element = LzmaItem
         
         private let reader: clzma_reader_t
